@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 import psycopg2
 from math import radians, sin, cos, sqrt, atan2
 import requests
@@ -17,7 +18,7 @@ cursor = conn.cursor()
 
 
 def get_location_from_ip(ip):
-    response = requests.get(f"")
+    response = requests.get(f"https://ipinfo.io/{ip}/json")
 
     if response.status_code == 200:
         location_data = response.json()
@@ -82,10 +83,12 @@ async def choisir_serveur(file_name: str, ip_client: str):
                     min_dist = dist
                     j = i
 
-            return {"serveur": serveurs_disponibles[j][1]}  # Retourne le port du serveur le plus proche
+            selected_server_port = serveurs_disponibles[j][1]
+            return {"serveur": f"http://localhost:{selected_server_port}/telecharger/{file_name}"}
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
